@@ -219,7 +219,7 @@ system.runInterval(() => {
             } else if (allScores.length > 1) {
                 nextRankInfo = "現在1位！";
             } else {
-                nextRankInfo = "独走中";
+                nextRankInfo = "独走中！";
             }
 
             const message = `§e採掘数: §f${myScore}個 §7| §e順位: §f${myRank}位 §7| §e${nextRankInfo}`;
