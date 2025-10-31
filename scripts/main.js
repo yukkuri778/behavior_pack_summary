@@ -109,7 +109,21 @@ world.afterEvents.playerBreakBlock.subscribe(event => {
     // 1. プレイヤーの採掘数を1増やす
     try {
         const objective = world.scoreboard.getObjective(MINING_COUNT_OBJECTIVE);
-        objective.addScore(player, 1);
+        // スコアをインクリメントし、新しいスコアを取得
+        const newScore = objective.addScore(player, 1);
+
+        // お祝いの閾値リスト
+        const CELEBRATION_MILESTONES = [100, 1000, 2000, 3000, 5000, 10000, 20000, 30000, 40000, 50000, 100000, 200000, 300000, 500000, 1000000];
+
+        // スコアがリストに含まれているかチェック
+        if (CELEBRATION_MILESTONES.includes(newScore)) {
+            // お祝いメッセージ
+            world.sendMessage(`§l§k!!!§r §b${player.name}§r が採掘数 §e${newScore}個§r を達成しました！ §k!!!§r`);
+            // 花火を打ち上げる
+            player.dimension.spawnEntity("minecraft:fireworks_rocket", player.location);
+            // 経験値取得音を全プレイヤーに再生
+            world.playSound("random.pop", player.location, { volume: 0.8, pitch: 1.0, players: world.getAllPlayers() });
+        }
     } catch (e) {
         console.error(`[MiningRanking] Failed to add score to player ${player.name}: ${e}`);
     }
@@ -117,7 +131,22 @@ world.afterEvents.playerBreakBlock.subscribe(event => {
     // 2. ワールド全体の総採掘数を1増やす
     try {
         const objective = world.scoreboard.getObjective(WORLD_MINING_COUNT_OBJECTIVE);
-        objective.addScore(WORLD_TOTAL_HOLDER, 1);
+        const newWorldScore = objective.addScore(WORLD_TOTAL_HOLDER, 1);
+
+        // お祝いの閾値リスト（プレイヤーと共通）
+        const CELEBRATION_MILESTONES = [1000, 3000, 5000, 10000, 30000, 50000, 100000, 200000, 300000, 400000, 500000, 1000000];
+
+        // ワールドの総採掘数がリストに含まれているかチェック
+        if (CELEBRATION_MILESTONES.includes(newWorldScore)) {
+            // お祝いメッセージ
+            world.sendMessage(`§l§k!!!§r §dワールド総採掘数§r が §e${newWorldScore}個§r を達成しました！ §k!!!§r`);
+            // 全てのプレイヤーから花火を打ち上げる
+            for (const p of world.getAllPlayers()) {
+                p.dimension.spawnEntity("minecraft:fireworks_rocket", p.location);
+            }
+            // 経験値取得音を全プレイヤーに再生
+            world.playSound("random.levelup", player.location, { volume: 1.0, pitch: 0.8, players: world.getAllPlayers() });
+        }
     } catch (e) {
         console.error(`[MiningRanking] Failed to add score to world total: ${e}`);
     }
