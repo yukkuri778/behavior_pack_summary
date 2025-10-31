@@ -366,13 +366,23 @@ function handleResetRequest(player) {
     if (lastRequestTime && (now - lastRequestTime) < RESET_CONFIRMATION_TIMEOUT) {
         // 10秒以内に再実行された場合
         executeReset();
-        world.sendMessage(`§l§c[MiningRanking] ${player.name} によってすべてのデータがリセットされました。`);
-        delete resetRequests[player.id];
+        world.sendMessage(`§l§c[System] ${player.name} によってすべてのデータがリセットされました。`);
+        world.playSound("random.anvil_land", player.location, { volume: 0.8, pitch: 1.0, players: world.getAllPlayers() });
+        delete resetRequests[player.id]; // 正常にリセットされたのでタイムアウトをキャンセルするために削除
     } else {
         // 初回実行またはタイムアウト後の実行の場合
         resetRequests[player.id] = now;
-        player.sendMessage("§c§l警告: 本当にすべての採掘データをリセットしますか？");
+        player.sendMessage("§c§l[System]警告: 本当にすべての採掘データをリセットしますか？");
         player.sendMessage(`§cこの操作は取り消せません。実行するには、${RESET_CONFIRMATION_TIMEOUT / 1000}秒以内にもう一度 /function reset を実行してください。`);
+
+        // タイムアウト処理を設定
+        system.runTimeout(() => {
+            // タイムアウト後にまだリセット要求が存在するか確認
+            if (resetRequests[player.id] === now) {
+                player.sendMessage("§e[System]データリセットがキャンセルされました。");
+                delete resetRequests[player.id];
+            }
+        }, RESET_CONFIRMATION_TIMEOUT / 1000 * 20); // 秒数をtickに変換 (20 ticks/sec)
     }
 }
 
