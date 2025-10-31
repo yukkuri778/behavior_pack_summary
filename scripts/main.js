@@ -215,9 +215,9 @@ system.runInterval(() => {
             if (myRank > 1) {
                 const nextRankScore = allScores[myRank - 2].score;
                 const diff = nextRankScore - myScore + 1;
-                nextRankInfo = `次の順位まであと${diff}個`;
+                nextRankInfo = `次の順位まで：${diff}個`;
             } else if (allScores.length > 1) {
-                nextRankInfo = "現在1位！";
+                nextRankInfo = "次の順位まで：現在1位！";
             } else {
                 nextRankInfo = "独走中！";
             }
