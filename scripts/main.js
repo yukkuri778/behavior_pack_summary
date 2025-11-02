@@ -217,9 +217,9 @@ world.afterEvents.itemUse.subscribe(event => {
         source.setDynamicProperty(ACTION_BAR_ENABLED_PROP, newStatus);
 
         if (newStatus) {
-            source.sendMessage("§aアクションバーのランキング表示をONにしました。");
+            source.sendMessage("§aアクションバー表示をONにしました。");
         } else {
-            source.sendMessage("§cアクションバーのランキング表示をOFFにしました。");
+            source.sendMessage("§cアクションバー表示をOFFにしました。");
             // OFFにした直後にアクションバーをクリアする
             source.onScreenDisplay.setActionBar("");
         }
