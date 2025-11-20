@@ -285,10 +285,11 @@ system.runInterval(() => {
         const objective = world.scoreboard.getObjective(MINING_COUNT_OBJECTIVE);
         if (!objective) return;
 
+        const participants = objective.getParticipants();
         // 全プレイヤーのスコアを取得し、ランキングを生成
-        const allScores = objective.getScores().map(score => ({
-            name: score.participant.displayName,
-            score: score.score
+        const allScores = participants.map(p => ({
+            name: p.displayName,
+            score: objective.getScore(p) ?? 0,
         }));
         allScores.sort((a, b) => b.score - a.score);
 
