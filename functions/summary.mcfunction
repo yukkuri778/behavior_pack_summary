@@ -1,1 +1,1 @@
-scriptevent msssummary
+scriptevent mss:summary
