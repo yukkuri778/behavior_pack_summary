@@ -243,6 +243,11 @@ world.afterEvents.itemUse.subscribe(event => {
         system.run(() => {
             showRank(source);
         });
+        for(const p of world.getAllPlayers()){
+        if(p.hasTag(TAG_LOG)){
+            p.sendMessage(`§a[MSSlog]§7アイテム使用：${source.name}, ${itemStack.typeId}`);
+        }
+    }
     } 
     // 時計使用でアクションバー表示を切り替え
     else if (itemStack.typeId === 'minecraft:clock') {
@@ -258,11 +263,11 @@ world.afterEvents.itemUse.subscribe(event => {
             // OFFにした直後にアクションバーをクリアする
             source.onScreenDisplay.setActionBar("");
         }
-    }
-    for(const p of world.getAllPlayers()){
+        for(const p of world.getAllPlayers()){
         if(p.hasTag(TAG_LOG)){
             p.sendMessage(`§a[MSSlog]§7アイテム使用：${source.name}, ${itemStack.typeId}`);
         }
+    }
     }
 });
 
