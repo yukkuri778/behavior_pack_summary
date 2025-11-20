@@ -14,12 +14,15 @@ const BLOCK_COUNT_PREFIX = "block_count:"; // ブロックごとの採掘数
 const ACTION_BAR_ENABLED_PROP = "actionBar:enabled"; // アクションバー表示設定
 
 // コマンド用イベントID
-const RANK_EVENT_ID = "gemini:rank";
-const SUMMARY_EVENT_ID = "gemini:summary";
-const RESET_EVENT_ID = "gemini:reset";
+const RANK_EVENT_ID = "mss:rank";
+const SUMMARY_EVENT_ID = "mss:summary";
+const RESET_EVENT_ID = "mss:reset";
 
 // リセット確認用の待機時間（ミリ秒）
 const RESET_CONFIRMATION_TIMEOUT = 10000; // 10秒
+
+// ログ表示用タグ名
+const TAG_LOG = "logListener";
 
 // カウントしないブロックのリスト
 const EXCLUDED_BLOCKS = new Set([
@@ -80,6 +83,11 @@ world.afterEvents.playerJoin.subscribe(event => {
     if (player.getDynamicProperty(ACTION_BAR_ENABLED_PROP) === undefined) {
         player.setDynamicProperty(ACTION_BAR_ENABLED_PROP, true);
     }
+    for(const p of world.getAllPlayers()){
+        if(p.hasTag(TAG_LOG)){
+            p.sendMessage(`§a[MSSlog]§7初参加：${player.name}`);
+        }
+    }
 });
 
 /**
@@ -103,6 +111,11 @@ world.afterEvents.playerBreakBlock.subscribe(event => {
         }
     } catch(e) {
         console.error(`[MiningRanking] Failed to check gamemodES: ${e}`);
+        for(const p of world.getAllPlayers()){
+            if(p.hasTag(TAG_LOG)){
+                p.sendMessage("§a[MSSlog]§cエラー：ゲームモードの確認に失敗しました。");
+            }
+        }
         return; // 安全のため、エラー時もカウントしない
     }
 
@@ -131,8 +144,20 @@ world.afterEvents.playerBreakBlock.subscribe(event => {
             player.dimension.spawnEntity("minecraft:fireworks_rocket", player.location);
             world.playSound("random.pop", player.location, { volume: 0.8, pitch: 1.0, players: world.getAllPlayers() });
         }
+
+        for(const p of world.getAllPlayers()){
+        if(p.hasTag(TAG_LOG)){
+            p.sendMessage(`§a[MSSlog]§7ブロック破壊：${player.name}, ${blockId}`);
+        }
+    }
+
     } catch (e) {
         console.error(`[MiningRanking] Failed to add score to player ${player.name}: ${e}`);
+        for(const p of world.getAllPlayers()){
+            if(p.hasTag(TAG_LOG)){
+                p.sendMessage("§a[MSSlog]§cエラー：プレイヤーの採掘数の更新に失敗しました。");
+            }
+        }
     }
 
     // 2. ワールド全体の総採掘数を1増やす
@@ -166,6 +191,11 @@ world.afterEvents.playerBreakBlock.subscribe(event => {
 
     } catch (e) {
         console.error(`[MiningRanking] Failed to add score to world total: ${e}`);
+        for(const p of world.getAllPlayers()){
+            if(p.hasTag(TAG_LOG)){
+                p.sendMessage(`§a[MSSlog]§cワールド採掘数更新エラー：${e}`);
+            }
+        }
     }
 
     // 3. ブロックごとの採掘数をカウント
@@ -193,6 +223,11 @@ system.afterEvents.scriptEventReceive.subscribe(event => {
         showSummary(sourceEntity);
     } else if (id === RESET_EVENT_ID) {
         handleResetRequest(sourceEntity);
+    }
+    for(const p of world.getAllPlayers()){
+        if(p.hasTag(TAG_LOG)){
+            p.sendMessage(`§a[MSSlog]§7コマンド実行：${sourceEntity.name}, ${id}`);
+        }
     }
 });
 
@@ -222,6 +257,11 @@ world.afterEvents.itemUse.subscribe(event => {
             source.sendMessage("§a[MSS]§cアクションバー表示をOFFにしました。");
             // OFFにした直後にアクションバーをクリアする
             source.onScreenDisplay.setActionBar("");
+        }
+    }
+    for(const p of world.getAllPlayers()){
+        if(p.hasTag(TAG_LOG)){
+            p.sendMessage(`§a[MSSlog]§7アイテム使用：${source.name}, ${itemStack.typeId}`);
         }
     }
 });
@@ -273,6 +313,11 @@ system.runInterval(() => {
         }
     } catch (e) {
         console.error(`[MiningRanking] Error in action bar update loop: ${e}`);
+        for(const player of world.getAllPlayers()){
+            if(player.hasTag(TAG_LOG)){
+                player.sendMessage(`§a[MSSlog]§cアクションバー更新エラー：${e}`);
+            }
+        }
     }
 }, 20); // 20 ticks = 1秒
 
@@ -316,6 +361,11 @@ function showRank(player) {
     } catch (e) {
         player.sendMessage("§a[MSS]§cランキングの表示中にエラーが発生しました。");
         console.error(`[MiningRanking] Error in showRank: ${e}`);
+        for(const player of world.getAllPlayers()){
+            if(player.hasTag(TAG_LOG)){
+                player.sendMessage(`§a[MSSlog]§cランキング表示エラー：${e}`);
+            }
+        }
     }
 }
 
@@ -369,6 +419,11 @@ function showSummary(player) {
     } catch (e) {
         player.sendMessage("§a[MSS]§c統計の表示中にエラーが発生しました。");
         console.error(`[MiningRanking] Error in showSummary: ${e}`);
+        for(const player of world.getAllPlayers()){
+            if(player.hasTag(TAG_LOG)){
+                player.sendMessage(`§a[MSSlog]§c統計表示エラー：${e}`);
+            }
+        }
     }
 }
 
@@ -434,5 +489,10 @@ function executeReset() {
     } catch (e) {
         console.error(`[MiningRanking] Failed to execute reset: ${e}`);
         world.sendMessage("§a[MSS]§cデータのリセット中にエラーが発生しました。");
+        for(const player of world.getAllPlayers()){
+            if(player.hasTag(TAG_LOG)){
+                player.sendMessage(`§a[MSSlog]§cデータリセットエラー：${e}`);
+            }
+        }
     }
 }

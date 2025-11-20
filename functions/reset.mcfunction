@@ -1,1 +1,1 @@
-scriptevent gemini:reset
+scriptevent mss:reset

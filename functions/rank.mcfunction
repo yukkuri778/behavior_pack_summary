@@ -1,1 +1,1 @@
-scriptevent gemini:rank
+scriptevent mss:rank

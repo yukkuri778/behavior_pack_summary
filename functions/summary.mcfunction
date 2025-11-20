@@ -1,1 +1,1 @@
-scriptevent gemini:summary
+scriptevent msssummary
