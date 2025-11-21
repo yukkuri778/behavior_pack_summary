@@ -17,6 +17,9 @@ const ACTION_BAR_ENABLED_PROP = "actionBar:enabled"; // アクションバー表
 const RANK_EVENT_ID = "mss:rank";
 const SUMMARY_EVENT_ID = "mss:summary";
 const RESET_EVENT_ID = "mss:reset";
+const CHECKV_EVENT_ID = "mss:checkV";
+
+const BEHAVIOR_PACK_VERSION = "1.0.2";
 
 // リセット確認用の待機時間（ミリ秒）
 const RESET_CONFIRMATION_TIMEOUT = 10000; // 10秒
@@ -223,6 +226,8 @@ system.afterEvents.scriptEventReceive.subscribe(event => {
         showSummary(sourceEntity);
     } else if (id === RESET_EVENT_ID) {
         handleResetRequest(sourceEntity);
+    } else if (id === CHECKV_EVENT_ID) {
+        showVersion(sourceEntity);
     }
     for(const p of world.getAllPlayers()){
         if(p.hasTag(TAG_LOG)){
@@ -329,6 +334,24 @@ system.runInterval(() => {
 
 
 // --- コマンド処理関数 ---
+
+/**
+ * 現在のバージョンをプレイヤーに表示します。
+ * @param {import("@minecraft/server").Player} player
+ */
+function showVersion(player) {
+    try {
+        player.sendMessage(`§a[MSS]§fMining Summary System v${BEHAVIOR_PACK_VERSION}`);
+    } catch (e) {
+        player.sendMessage("§a[MSS]§cバージョンの表示中にエラーが発生しました。");
+        console.error(`[MiningRanking] Error in showVersion: ${e}`);
+        for(const p of world.getAllPlayers()){
+            if(p.hasTag(TAG_LOG)){
+                p.sendMessage(`§a[MSSlog]§cバージョン表示エラー：${e}`);
+            }
+        }
+    }
+}
 
 /**
  * 採掘数ランキングをプレイヤーに表示します。
