@@ -303,6 +303,17 @@ system.runInterval(() => {
             if (player.getDynamicProperty(ACTION_BAR_ENABLED_PROP) === false) {
                 continue;
             }
+            if (player.scoreboardIdentity === undefined) {
+                
+                // IDがない = 初回またはデータロスト なので初期化
+                objective.setScore(player, 0);
+                for(const p of world.getAllPlayers()){
+                    if(p.hasTag(TAG_LOG)){
+                        p.sendMessage(`§a[MSSlog]§7リロード初期化（ID生成）：${player.name}`);
+                    }
+                }
+
+            }
 
             const myScore = objective.getScore(player) ?? 0;
             const myRank = allScores.findIndex(s => s.name === player.name) + 1;
@@ -311,14 +322,14 @@ system.runInterval(() => {
             if (myRank > 1) {
                 const nextRankScore = allScores[myRank - 2].score;
                 const diff = nextRankScore - myScore + 1;
-                nextRankInfo = `次の順位まで：${diff}個`;
+                nextRankInfo = `次の順位まで：§f${diff}個`;
             } else if (allScores.length > 1) {
-                nextRankInfo = "次の順位まで：現在1位！";
+                nextRankInfo = "次の順位まで：§f現在1位！";
             } else {
                 nextRankInfo = "独走中！";
             }
 
-            const message = `§e採掘数: §f${myScore}個 §7| §e順位: §f${myRank}位 §7| §e${nextRankInfo}`;
+            const message = `§d採掘数: §f${myScore}個 §7| §d順位: §f${myRank}位 §7| §d${nextRankInfo}`;
             player.onScreenDisplay.setActionBar(message);
         }
     } catch (e) {
